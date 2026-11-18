@@ -27,3 +27,24 @@ jobs:
           python -m pip install -q .
           patet --version
           patet check https://example.invalid 2>&1 | grep -q "could not reach" || (echo "expected a network error" && exit 1)
+
+  action:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: The action passes a clean build folder
+        uses: ./
+        with:
+          path: examples/clean
+      - name: The action fails a build folder holding a server key
+        id: leaky
+        continue-on-error: true
+        uses: ./
+        with:
+          path: examples/leaky
+      - name: Check the leaky folder really failed
+        if: steps.leaky.outcome != 'failure'
+        run: echo "patet scan let a server key through" && exit 1
