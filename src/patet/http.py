@@ -56,8 +56,9 @@ class Transport:
                 body = b"" if method == "HEAD" else r.read(self.max_bytes)
                 return Response(r.status, _lower(r.headers), body)
         except urllib.error.HTTPError as e:
-            body = b"" if method == "HEAD" else e.read(self.max_bytes)
-            return Response(e.code, _lower(e.headers), body)
+            with e:
+                body = b"" if method == "HEAD" else e.read(self.max_bytes)
+                return Response(e.code, _lower(e.headers), body)
         except (urllib.error.URLError, TimeoutError, OSError) as e:
             raise NetworkError(f"could not reach {url}: {getattr(e, 'reason', e)}") from None
         finally:
