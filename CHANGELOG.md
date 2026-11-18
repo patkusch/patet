@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- A live test runs patet in CI against real Postgres 17 and PostgREST v16.5 with seven planted tables. All seven are reported correctly.
+- An open table whose code asks for every column (`select("*")`) now says to run with `--columns`, instead of looking harmless.
+
 ## 0.1.0 (2026-11-18)
 
 First release.

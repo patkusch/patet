@@ -127,7 +127,21 @@ patet is for checking apps you own or have written permission to test. It sends 
 make test
 ```
 
-The tests run against a fake Supabase project and website on your own machine. They check that counting never downloads rows, that nothing reaches Supabase without `--i-own-this`, and that no full key or row value ever appears in the output. CI runs them on Python 3.11 to 3.14 and runs the GitHub Action against a clean and a leaky build folder.
+The unit tests run against a fake Supabase project and website on your own machine. They check that counting never downloads rows, that nothing reaches Supabase without `--i-own-this`, and that no full key or row value ever appears in the output. CI runs them on Python 3.11 to 3.14 and runs the GitHub Action against a clean and a leaky build folder.
+
+CI also runs patet against real Postgres 17 and PostgREST v16.5, the engine behind Supabase's data API ([live/run.py](live/run.py)). Seven tables are planted in known states: no row rules, rules with no policy, no grant, a public-read policy, an owners-only policy, an empty table, and a table that does not exist. patet reports all seven correctly with the old anon key and the new publishable key. It sends only row-count requests unless `--columns` is given, then reads one row per open table and prints no values.
+
+| Planted table | Set up as | patet reports |
+|---|---|---|
+| profiles | no row rules, 57 rows, passport numbers | open, 57 rows, critical with `--columns` |
+| notes | row rules on, no policy | no rows |
+| payroll | not granted to visitors | closed |
+| posts | public-read policy, 5 rows | open, 5 rows, medium |
+| messages | owners-only policy | no rows |
+| waitlist | no row rules, empty | no rows |
+| orders | does not exist | missing |
+
+The live test leaves out Supabase's sign-up and storage services and its gateway. Those parts are covered only by the fake project so far.
 
 ## Licence
 
