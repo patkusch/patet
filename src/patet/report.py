@@ -64,8 +64,13 @@ def analyse(rep: Report) -> list[Finding]:
         grade = _TABLE_GRADE[hits[0][1] if hits else None]
         labels = sorted({h[2] for h in hits}, key=lambda l: [h[2] for h in hits].index(l))
         source = "Its columns" if t.columns else "The columns your code asks for"
-        why = (f"{source} hold {', '.join(labels)} ({', '.join(h[0] for h in hits)}). " if hits
-               else "Fine only if every row is meant to be public. ")
+        if hits:
+            why = f"{source} hold {', '.join(labels)} ({', '.join(h[0] for h in hits)}). "
+        elif not cols:
+            why = ("patet could not see its columns, because your code asks for all of them (`*`). "
+                   "Run with --columns to grade what it holds. ")
+        else:
+            why = "Fine only if every row is meant to be public. "
         why += "A visitor needs only the key in your page, no login."
         out.append(Finding(grade, f"Anyone can read {_rows(t.rows)} of `{t.name}`", why,
                            "Turn on row level security for this table and add a rule for who may read "

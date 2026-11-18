@@ -34,6 +34,10 @@ class Findings(unittest.TestCase):
         self.assertEqual(rep.findings[0].grade, "medium")
         self.assertFalse(rep.failed)
 
+    def test_unknown_columns_point_to_the_columns_option(self):
+        rep = report(tables=[TableResult("orders", "exposed", 4)])
+        self.assertIn("--columns", rep.findings[0].why)
+
     def test_closed_tables_make_no_findings(self):
         rep = report(tables=[TableResult("a", "hidden", 0), TableResult("b", "blocked")])
         self.assertEqual([f.grade for f in rep.findings], ["info"])  # just the function note

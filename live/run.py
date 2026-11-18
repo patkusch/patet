@@ -146,17 +146,20 @@ def run() -> int:
         Gateway.log.clear()
         code, d1 = patet(base)
         check("Counting only, with the anon key from the page", d1, failures, grades=False)
-        rows_fetched = [p for m, p in Gateway.log if m != "HEAD"]
+        rows_fetched = [p for m, p in Gateway.log if m != "HEAD" and p.startswith("/rest/v1/")]
         print(f"  {'ok  ' if not rows_fetched else 'FAIL'} only HEAD requests reached the data API")
         if rows_fetched:
             failures.append(f"counting fetched rows: {rows_fetched}")
-        if code != 1:
-            failures.append(f"exit code {code}, expected 1 (an open table with email-like columns)")
+        # The site asks for select("*"), so without --columns patet cannot see the columns: medium, exit 0.
+        if code != 0:
+            failures.append(f"counting only: exit code {code}, expected 0")
 
         Gateway.log.clear()
-        _, d2 = patet(base + ["--columns"])
+        code, d2 = patet(base + ["--columns"])
+        if code != 1:
+            failures.append(f"--columns: exit code {code}, expected 1 (passport numbers in profiles)")
         check("With --columns", d2, failures, grades=True)
-        gets = sorted(p for m, p in Gateway.log if m == "GET")
+        gets = sorted(p for m, p in Gateway.log if m == "GET" and p.startswith("/rest/v1/"))
         want = ["/rest/v1/posts?select=*&limit=1", "/rest/v1/profiles?select=*&limit=1"]
         print(f"  {'ok  ' if gets == want else 'FAIL'} one row read per open table, nothing else")
         if gets != want:
