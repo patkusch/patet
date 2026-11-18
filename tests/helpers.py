@@ -64,7 +64,7 @@ class _Handler(BaseHTTPRequestHandler):
             self.wfile.write(body)
 
     def _record(self):
-        self.server.log.append((self.command, self.path, dict(self.headers)))
+        self.server.log.append((self.command, self.path, {k.lower(): v for k, v in self.headers.items()}))
 
     def _authorised(self):
         return self.headers.get("apikey") in (ANON, PUBLISHABLE)

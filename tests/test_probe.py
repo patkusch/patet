@@ -23,12 +23,12 @@ class Probe(unittest.TestCase):
     def test_counting_never_downloads_rows(self):
         _, log = self.run_probe()
         self.assertTrue(all(m == "HEAD" for m, _, _ in log), log)
-        self.assertTrue(all(h.get("Prefer") == "count=exact" for _, _, h in log))
+        self.assertTrue(all(h.get("prefer") == "count=exact" for _, _, h in log))
 
     def test_sends_browser_key_both_ways(self):
         _, log = self.run_probe()
         self.assertEqual(log[0][2]["apikey"], ANON)
-        self.assertEqual(log[0][2]["Authorization"], f"Bearer {ANON}")
+        self.assertEqual(log[0][2]["authorization"], f"Bearer {ANON}")
 
     def test_columns_reads_one_row_and_keeps_only_names(self):
         res, log = self.run_probe(columns=True)
