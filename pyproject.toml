@@ -9,6 +9,12 @@ keywords = ["supabase", "row-level-security", "rls", "postgrest", "security", "v
 classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
   "Topic :: Security",
 ]
 dependencies = []
@@ -26,3 +32,4 @@ where = ["src"]
 [project.urls]
 Homepage = "https://github.com/patkusch/patet"
 Issues = "https://github.com/patkusch/patet/issues"
+Changelog = "https://github.com/patkusch/patet/blob/main/CHANGELOG.md"
