@@ -48,3 +48,39 @@ jobs:
       - name: Check the leaky folder really failed
         if: steps.leaky.outcome != 'failure'
         run: echo "patet scan let a server key through" && exit 1
+
+  live:
+    # patet against real Postgres and PostgREST, the engine behind Supabase's data API.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17@sha256:0d938e975177bef9f1f61f3f9dbcf2e0aa0a139568f66d3415ed8892eb97f6ac
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 5s --health-retries 30
+    env:
+      PGRST_JWT_SECRET: patet-live-test-secret-at-least-32-chars
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Load the planted tables
+        run: PGPASSWORD=postgres psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d postgres -f live/setup.sql
+      - name: Start PostgREST v16.5
+        run: |
+          docker run -d --name postgrest --network host \
+            -e PGRST_DB_URI=postgres://authenticator:authenticator@127.0.0.1:5432/postgres \
+            -e PGRST_DB_SCHEMAS=public -e PGRST_DB_ANON_ROLE=anon -e PGRST_JWT_SECRET \
+            postgrest/postgrest:v16.5@sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:3000/ >/dev/null 2>&1 && break; sleep 1; done
+          curl -s -o /dev/null -w "PostgREST answered %{http_code}\n" http://127.0.0.1:3000/posts
+      - name: Run patet against it
+        run: python live/run.py
+      - if: failure()
+        run: docker logs postgrest | tail -50
