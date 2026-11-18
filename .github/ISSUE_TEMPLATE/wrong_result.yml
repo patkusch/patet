@@ -1,0 +1,31 @@
+name: Wrong result
+description: patet said a table was open when it was not, or missed one that was.
+labels: [wrong-result]
+body:
+  - type: markdown
+    attributes:
+      value: Please do not paste keys, row values or your project's address. Masked output from patet is fine.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong
+      options:
+        - A table was reported open but is not
+        - An open table was missed
+        - A column was graded wrongly
+        - patet did not find my project, key or tables
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What you expected and what patet said
+      description: Include the table's row rules (the SQL is fine) and patet's output with values removed.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: patet version
+      placeholder: patet --version
