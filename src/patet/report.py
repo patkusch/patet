@@ -121,7 +121,7 @@ def to_text(rep: Report, fix: bool = False) -> str:
         L += ["", "What a visitor can read, table by table:", ""]
         w = max(len(t.name) for t in rep.tables)
         for t in rep.tables:
-            rows = "" if t.rows is None else f"{t.rows:,} rows"
+            rows = f"{t.rows:,} rows" if t.state == "exposed" and t.rows is not None else ""
             word = {"exposed": "OPEN", "hidden": "no rows", "blocked": "closed", "missing": "missing",
                     "error": "error"}[t.state]
             L.append(f"  {t.name:<{w}}  {word:<8} {rows}")
