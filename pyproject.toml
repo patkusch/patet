@@ -31,5 +31,6 @@ where = ["src"]
 
 [project.urls]
 Homepage = "https://github.com/patkusch/patet"
+Repository = "https://github.com/patkusch/patet"
 Issues = "https://github.com/patkusch/patet/issues"
 Changelog = "https://github.com/patkusch/patet/blob/main/CHANGELOG.md"
